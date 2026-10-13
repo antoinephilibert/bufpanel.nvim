@@ -1,0 +1,104 @@
+*bufpanel.txt*  Panneau latéral des buffers ouverts et des fichiers récents
+
+==============================================================================
+CONTENU                                                     *bufpanel-contents*
+
+  1. Introduction ......................................... |bufpanel-intro|
+  2. Configuration ........................................ |bufpanel-config|
+  3. Commandes ............................................ |bufpanel-commands|
+  4. Raccourcis du panneau ................................ |bufpanel-keymaps|
+  5. Historique ........................................... |bufpanel-history|
+  6. Surbrillance ......................................... |bufpanel-highlights|
+
+==============================================================================
+1. Introduction                                         *bufpanel* *bufpanel-intro*
+
+bufpanel.nvim ouvre à gauche un panneau en deux sections :
+
+  - BUFFERS : les buffers ouverts, dans l'ordre de leur première ouverture.
+  - RÉCENTS : les fichiers ouverts dernièrement sous le répertoire de travail
+    courant, du plus récent au plus ancien. Section repliable.
+
+`▎` marque le buffer courant, `●` un buffer modifié.
+
+Neovim 0.10 minimum. `nvim-web-devicons` est optionnel.
+
+==============================================================================
+2. Configuration                                             *bufpanel-config*
+
+>lua
+    require("bufpanel").setup({
+      width = 32,
+      open_on_startup = true,
+      startup_exclude_filetypes = { "gitcommit", "gitrebase" },
+      icons = true,
+      show_help = true,
+      recent = {
+        visible = true,    -- section dépliée au démarrage
+        max_display = 15,  -- entrées affichées
+        max_stored = 50,   -- entrées conservées par cwd
+      },
+      keymaps = {          -- `false` désactive un raccourci
+        open = "<CR>",
+        close_buffer = "x",
+        toggle_recent = "R",
+        close_panel = "q",
+      },
+    })
+<
+Le panneau ne s'ouvre pas au démarrage en mode diff, en mode headless, ni si
+le filetype du buffer initial est dans `startup_exclude_filetypes`. Il
+s'ouvre sans prendre le focus.
+
+==============================================================================
+3. Commandes                                               *bufpanel-commands*
+
+:BufPanelOpen                                                  *:BufPanelOpen*
+    Ouvre le panneau dans l'onglet courant.
+
+:BufPanelClose                                                *:BufPanelClose*
+    Ferme le panneau.
+
+:BufPanelToggle                                              *:BufPanelToggle*
+    Ouvre ou ferme le panneau.
+
+:BufPanelFocus                                                *:BufPanelFocus*
+    Ouvre le panneau si nécessaire et y place le curseur.
+
+Aucun raccourci global n'est créé.
+
+==============================================================================
+4. Raccourcis du panneau                                    *bufpanel-keymaps*
+
+<CR>    Ouvre l'entrée dans la dernière fenêtre d'édition. Sur l'en-tête
+        RÉCENTS : déplie ou replie la section.
+x       Ferme le buffer sous le curseur sans fermer ses fenêtres. Refusé si
+        le buffer est modifié. Sans effet dans les récents.
+R       Déplie ou replie la section RÉCENTS.
+q       Ferme le panneau.
+
+==============================================================================
+5. Historique                                               *bufpanel-history*
+
+L'historique est rangé par répertoire de travail global (|:pwd|) et stocké
+dans : >
+    stdpath("data") .. "/bufpanel/history.json"
+<
+Il est écrit peu après chaque changement et à la sortie de Neovim, en
+fusionnant avec le contenu du fichier pour ne pas écraser ce qu'une autre
+instance a écrit. Pour le réinitialiser, quitter Neovim et supprimer le
+fichier.
+
+==============================================================================
+6. Surbrillance                                          *bufpanel-highlights*
+
+Groupes définis avec `default = true` :
+
+  BufPanelHeader          -> Title
+  BufPanelCurrent         -> Directory
+  BufPanelCurrentMarker   -> Special
+  BufPanelModified        -> DiagnosticWarn
+  BufPanelDir             -> Comment
+  BufPanelHelp            -> Comment
+
+ vim:tw=78:ts=8:ft=help:norl:
