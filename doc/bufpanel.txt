@@ -7,8 +7,9 @@ CONTENU                                                     *bufpanel-contents*
   2. Configuration ........................................ |bufpanel-config|
   3. Commandes ............................................ |bufpanel-commands|
   4. Raccourcis du panneau ................................ |bufpanel-keymaps|
-  5. Historique ........................................... |bufpanel-history|
-  6. Surbrillance ......................................... |bufpanel-highlights|
+  5. Fermeture automatique .............................. |bufpanel-autoclose|
+  6. Historique ........................................... |bufpanel-history|
+  7. Surbrillance ......................................... |bufpanel-highlights|
 
 ==============================================================================
 1. Introduction                                         *bufpanel* *bufpanel-intro*
@@ -33,6 +34,8 @@ Neovim 0.10 minimum. `nvim-web-devicons` est optionnel.
       startup_exclude_filetypes = { "gitcommit", "gitrebase" },
       icons = true,
       show_help = true,
+      close_on_filetypes = {}, -- voir |bufpanel-autoclose|
+      reopen_after = true,
       recent = {
         visible = true,    -- section dépliée au démarrage
         max_display = 15,  -- entrées affichées
@@ -78,7 +81,31 @@ R       Déplie ou replie la section RÉCENTS.
 q       Ferme le panneau.
 
 ==============================================================================
-5. Historique                                               *bufpanel-history*
+5. Fermeture automatique                                  *bufpanel-autoclose*
+
+`close_on_filetypes` liste des filetypes dont l'ouverture d'une fenêtre dans
+l'onglet courant ferme le panneau. Les fenêtres flottantes comptent
+aussi. >lua
+    opts = {
+      close_on_filetypes = { "neo-tree", "NvimTree", "fugitive" },
+    },
+<
+Le filetype d'un plugin s'obtient avec `:set ft?` dans sa fenêtre. Les
+plugins qui s'ouvrent dans un nouvel onglet (Diffview) n'ont pas besoin d'être
+listés.
+
+Avec `reopen_after = true`, le panneau se rouvre sans prendre le focus quand
+ces fenêtres sont toutes fermées et qu'il reste une fenêtre d'édition.
+
+Une fermeture manuelle (|:BufPanelClose|, |:BufPanelToggle|, `q`) annule la
+réouverture. Une ouverture manuelle pendant qu'une de ces fenêtres est ouverte
+est respectée jusqu'à l'apparition d'une nouvelle fenêtre de la liste.
+
+Au démarrage, si une de ces fenêtres est déjà ouverte (`nvim .` avec
+neo-tree), le panneau ne s'ouvre qu'à sa fermeture.
+
+==============================================================================
+6. Historique                                               *bufpanel-history*
 
 L'historique est rangé par répertoire de travail global (|:pwd|) et stocké
 dans : >
@@ -90,7 +117,7 @@ instance a écrit. Pour le réinitialiser, quitter Neovim et supprimer le
 fichier.
 
 ==============================================================================
-6. Surbrillance                                          *bufpanel-highlights*
+7. Surbrillance                                          *bufpanel-highlights*
 
 Groupes définis avec `default = true` :
 

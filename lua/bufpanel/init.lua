@@ -43,9 +43,21 @@ local function should_open_on_startup()
 end
 
 local function startup_open()
-  if should_open_on_startup() then
-    require("bufpanel.panel").open({ focus = false })
+  if not should_open_on_startup() then
+    return
   end
+  -- Une fenêtre déclencheuse est déjà là (ex. `nvim .` avec neo-tree) :
+  -- pas d'ouverture, le panneau s'ouvrira quand elle se fermera.
+  local autoclose = require("bufpanel.autoclose")
+  local tab = vim.api.nvim_get_current_tabpage()
+  local triggers = autoclose.find_triggers(tab)
+  if #triggers > 0 then
+    if require("bufpanel.config").options.reopen_after then
+      autoclose.remember(tab, triggers)
+    end
+    return
+  end
+  require("bufpanel.panel").open({ focus = false, auto = true })
 end
 
 local function create_commands()
@@ -70,6 +82,7 @@ local function create_autocmds()
   local panel = require("bufpanel.panel")
   local buffers = require("bufpanel.buffers")
   local history = require("bufpanel.history")
+  local autoclose = require("bufpanel.autoclose")
 
   local group = vim.api.nvim_create_augroup("BufPanel", { clear = true })
   local au = function(event, opts)
@@ -113,6 +126,29 @@ local function create_autocmds()
       if state.win and vim.api.nvim_win_is_valid(state.win) and vim.api.nvim_win_get_buf(state.win) ~= state.buf then
         vim.schedule(panel.restore_panel_buf)
       end
+    end,
+  })
+
+  -- Fermeture automatique : certains plugins règlent le filetype après avoir
+  -- affiché le buffer, d'autres avant. Les deux événements mènent à la même
+  -- vérification, planifiée une seule fois.
+  au({ "BufWinEnter", "FileType" }, {
+    callback = function()
+      autoclose.request_check()
+    end,
+  })
+  au("WinClosed", {
+    callback = function(args)
+      autoclose.on_win_closed(tonumber(args.match))
+    end,
+  })
+  -- Réouverture restée en attente parce que l'onglet n'était pas l'onglet courant
+  au("TabEnter", {
+    callback = function()
+      local tab = vim.api.nvim_get_current_tabpage()
+      vim.schedule(function()
+        autoclose.reopen(tab)
+      end)
     end,
   })
 

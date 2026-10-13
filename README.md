@@ -90,6 +90,8 @@ require("bufpanel").setup({
   startup_exclude_filetypes = { "gitcommit", "gitrebase" }, -- pas d'ouverture au démarrage pour ces filetypes
   icons = true,              -- icônes via nvim-web-devicons, si installé
   show_help = true,          -- ligne d'aide en bas du panneau
+  close_on_filetypes = {},   -- filetypes qui ferment le panneau (voir « Fermeture automatique »)
+  reopen_after = true,       -- rouvrir le panneau quand ces fenêtres se ferment
   recent = {
     visible = true,          -- section dépliée au démarrage
     max_display = 15,        -- entrées affichées
@@ -148,9 +150,29 @@ Le fichier fermé reste dans l'historique et apparaît aussitôt dans la section
 
 Si un fichier est chargé par erreur dans la fenêtre du panneau (par exemple `:e fichier` lancé depuis le panneau), il est renvoyé vers la fenêtre d'édition.
 
-### Fermeture automatique
+### Fermeture avec la dernière fenêtre
 
 Quand la dernière fenêtre d'édition d'un onglet est fermée (`:q`, `<C-w>c`…), le panneau se ferme aussi, ce qui quitte Neovim s'il s'agissait du dernier onglet. Exception : si la fenêtre a été fermée par `:bdelete`, une nouvelle fenêtre d'édition est recréée à droite du panneau plutôt que de quitter Neovim.
+
+### Fermeture automatique
+
+Le panneau peut se fermer quand la fenêtre d'un plugin s'ouvre (explorateur de fichiers, Git…) et se rouvrir quand elle se ferme. Listez les filetypes concernés :
+
+```lua
+opts = {
+  close_on_filetypes = { "neo-tree", "NvimTree", "fugitive" },
+},
+```
+
+- Pour trouver le filetype d'un plugin, ouvrez sa fenêtre et tapez `:set ft?`.
+- Seules les fenêtres de l'onglet courant comptent. Les fenêtres flottantes sont aussi prises en compte, même si l'effet est peu visible puisqu'elles couvrent déjà l'écran.
+- Les plugins qui s'ouvrent dans un nouvel onglet (ex. Diffview) n'ont pas besoin d'être listés : le panneau n'y est pas ouvert.
+- Avec `reopen_after = true` (par défaut), le panneau se rouvre, sans prendre le focus, quand toutes les fenêtres qui l'ont fermé sont fermées et qu'il reste une fenêtre d'édition dans l'onglet.
+- Une fermeture manuelle (`:BufPanelClose`, `:BufPanelToggle`, `q`) n'est jamais annulée par une réouverture automatique.
+- Une ouverture manuelle (`:BufPanelOpen`, `:BufPanelToggle`, `:BufPanelFocus`) pendant que la fenêtre d'un de ces plugins est ouverte est respectée : le panneau ne se referme qu'à l'apparition d'une nouvelle fenêtre de la liste.
+- Au démarrage, si une de ces fenêtres est déjà ouverte (ex. `nvim .` avec neo-tree), le panneau ne s'ouvre pas. Il s'ouvrira quand elle se fermera.
+
+Liste vide par défaut : rien ne change si l'option n'est pas configurée.
 
 ### Historique par `cwd`
 

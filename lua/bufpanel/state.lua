@@ -14,6 +14,10 @@ local M = {
   refresh_pending = false,
   -- Garde contre les boucles pendant la fermeture automatique
   closing = false,
+  -- Onglet -> ensemble { [winid] = true } des fenêtres qui ont fermé le panneau
+  auto_closed_by = {},
+  -- Une vérification des fenêtres déclencheuses est déjà planifiée
+  check_pending = false,
 }
 
 return M

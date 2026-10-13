@@ -128,9 +128,17 @@ local function reset_win_options(win)
 end
 
 --- Ouvre le panneau dans l'onglet courant.
----@param opts { focus: boolean }|nil
+--- Une ouverture manuelle (sans `auto`) annule le suivi de la fermeture
+--- automatique et accepte les fenêtres déclencheuses déjà présentes.
+---@param opts { focus: boolean, auto: boolean }|nil
 function M.open(opts)
   opts = opts or {}
+  if not opts.auto then
+    local autoclose = require("bufpanel.autoclose")
+    local tab = vim.api.nvim_get_current_tabpage()
+    autoclose.forget(tab)
+    autoclose.ignore_current(tab)
+  end
   if M.is_open() then
     if opts.focus then
       vim.api.nvim_set_current_win(state.win)
@@ -157,7 +165,13 @@ function M.open(opts)
 end
 
 --- Ferme le panneau de l'onglet courant.
-function M.close()
+--- Une fermeture manuelle (sans `auto`) n'est jamais annulée par une
+--- réouverture automatique, même si le panneau était déjà fermé.
+---@param opts { auto: boolean }|nil
+function M.close(opts)
+  if not (opts and opts.auto) then
+    require("bufpanel.autoclose").forget(vim.api.nvim_get_current_tabpage())
+  end
   if not M.is_open() then
     state.win = nil
     return
