@@ -4,6 +4,7 @@ local M = {}
 M.defaults = {
   width = 32,
   open_on_startup = true,
+  min_columns = 0, -- largeur minimale de Neovim pour les ouvertures automatiques (0 = sans limite)
   startup_exclude_filetypes = { "gitcommit", "gitrebase" },
   icons = true,
   show_help = true,

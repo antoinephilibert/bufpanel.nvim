@@ -87,6 +87,7 @@ Valeurs par défaut :
 require("bufpanel").setup({
   width = 32,                -- largeur du panneau
   open_on_startup = true,    -- ouvrir le panneau au démarrage (sans prendre le focus)
+  min_columns = 0,           -- pas d'ouverture automatique si Neovim a moins de colonnes (0 = sans limite)
   startup_exclude_filetypes = { "gitcommit", "gitrebase" }, -- pas d'ouverture au démarrage pour ces filetypes
   icons = true,              -- icônes via nvim-web-devicons, si installé
   show_help = true,          -- ligne d'aide en bas du panneau
@@ -109,6 +110,8 @@ require("bufpanel").setup({
 Les options sont fusionnées en profondeur avec les valeurs par défaut (`vim.tbl_deep_extend("force", ...)`) : il suffit de passer ce qui change.
 
 Le panneau ne s'ouvre pas au démarrage en mode `diff` (`nvim -d`), en mode headless, ni si le filetype du buffer initial figure dans `startup_exclude_filetypes`.
+
+Avec `min_columns`, les ouvertures automatiques (démarrage, réouverture après `close_on_filetypes`) sont ignorées tant que Neovim fait moins de `min_columns` colonnes (`vim.o.columns`). Les commandes `:BufPanelOpen`, `:BufPanelToggle` et `:BufPanelFocus` ouvrent toujours le panneau.
 
 ## Commandes
 

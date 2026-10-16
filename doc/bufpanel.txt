@@ -31,6 +31,7 @@ Neovim 0.10 minimum. `nvim-web-devicons` est optionnel.
     require("bufpanel").setup({
       width = 32,
       open_on_startup = true,
+      min_columns = 0,       -- 0 = sans limite
       startup_exclude_filetypes = { "gitcommit", "gitrebase" },
       icons = true,
       show_help = true,
@@ -52,6 +53,11 @@ Neovim 0.10 minimum. `nvim-web-devicons` est optionnel.
 Le panneau ne s'ouvre pas au démarrage en mode diff, en mode headless, ni si
 le filetype du buffer initial est dans `startup_exclude_filetypes`. Il
 s'ouvre sans prendre le focus.
+
+Si `min_columns` est supérieur à 0 et que Neovim fait moins de colonnes
+(`'columns'`), les ouvertures automatiques (démarrage, réouverture après
+|bufpanel-autoclose|) sont ignorées. Les commandes |:BufPanelOpen|,
+|:BufPanelToggle| et |:BufPanelFocus| ouvrent toujours le panneau.
 
 ==============================================================================
 3. Commandes                                               *bufpanel-commands*

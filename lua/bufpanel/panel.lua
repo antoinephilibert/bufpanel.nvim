@@ -145,6 +145,10 @@ function M.open(opts)
     end
     return
   end
+  -- Neovim trop étroit : pas d'ouverture automatique (l'ouverture manuelle reste possible)
+  if opts.auto and vim.o.columns < (config.options.min_columns or 0) then
+    return
+  end
   local buf = ensure_buf()
   local prev = vim.api.nvim_get_current_win()
   -- win = -1 : split au niveau supérieur, tout à gauche (équivalent de `topleft vsplit`)
